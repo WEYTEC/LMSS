@@ -1,0 +1,13 @@
+#!/bin/bash
+# before the package gets uninstalled, this script will be called to stop and disable the service before it gets rm'd
+
+source "/etc/os-release"
+
+set -e
+
+if killall lmss
+then
+    echo "stopped lmss service"
+else
+    echo "lmss did not run, nothing to stop"
+fi
