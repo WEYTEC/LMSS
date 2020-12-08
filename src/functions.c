@@ -348,9 +348,9 @@ void set_mouse_on_message(void) {
                     posx = 1 - 300;
                     break;
                 default:
-                    slog(LL_DEBUG, "Centre:");
-                    posy = ctx.total_h / 2;
-                    posx = ctx.total_w / 2;
+                    slog(LL_DEBUG, "Centre: screen is %hhu", screen);
+                    posy = ctx.monitors[screen].y + ctx.monitors[screen].height / 2;
+                    posx = ctx.monitors[screen].x + ctx.monitors[screen].width / 2;
                     break;
             }
 
