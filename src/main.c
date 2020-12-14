@@ -138,7 +138,7 @@ int main(int argc, char ** argv) {
     }
 
     for (; true; ) {
-        usleep(50 * 1000);
+        usleep(15 * 1000);
         update_ctx_now();
 
         if (ctx.now_usec > ((ctx.was_usec + 5000) % 1000000)) {
