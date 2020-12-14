@@ -281,7 +281,6 @@ void mouse_at_border_eval(void) {
 
         ctx.last_row = row;
         ctx.last_col = col;
-        ctx.do_not_send = false;
 
         // send data to HID device
         if (data > 0 && !ctx.data_send)  // send data only once
@@ -292,6 +291,7 @@ void mouse_at_border_eval(void) {
             if (!err) {
                 ctx.data_send = 1;
                 ctx.data_recv = 0;
+                ctx.do_not_send = true;
             }
 
             slog(LL_DEBUG, "Now data is %d and data_send is %hhd", data, ctx.data_send);
@@ -376,6 +376,10 @@ void set_mouse_on_message(void) {
             int err = send_mouse_positioning_done();
             slog(LL_DEBUG, "----- send_mouse_positioning_done %d", err);
 
+            uint8_t cursor_hide = 4;
+            if (border != cursor_hide) {
+                ctx.do_not_send = false;
+            }
             ctx.data_send = !err ? 1 : 0;
             ctx.data_recv = 1;
         }
