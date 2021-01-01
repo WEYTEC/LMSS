@@ -23,6 +23,8 @@ It works with the following products of WEY Technology AG:
 
 - WEYTEC USB Deskswitch III (Part No: 22412S)
 
+## Installing
+please read the [LMSS installing wiki page](https://github.com/WEYTEC/LMSS/wiki/Installing)
 
 ## Tested Distributions
 
