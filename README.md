@@ -15,7 +15,7 @@ of the USB Deskswitch III, with the Deskswitch setup tool.
 It works with the following products of WEY Technology AG:
 
 - WEYTEC IP Remote Transmitter family
-    * IP Remote I Transmitter (Part No. 24872T)
+    * IP Remote I Transmitter (Part No. 24870T)
     * IP Remote II DVI Transmitter (Part No. 24872T)
     * IP Remote II DP Transmitter (Part No. 24872TDP)
     * IP Remote III 4K Transmitter (Part No. 24873T)
