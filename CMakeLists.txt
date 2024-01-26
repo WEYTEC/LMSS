@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.6)
 
 project(LMSS LANGUAGES C CXX)
 
@@ -33,8 +33,7 @@ target_link_libraries(lmss
     PkgConfig::X11
     PkgConfig::Xi)
 
-target_compile_features(lmss PRIVATE cxx_std_20)
-target_compile_options(lmss PRIVATE -Wall -Wextra)
+target_compile_options(lmss PRIVATE -Wall -Wextra -std=c++20)
 
 install(TARGETS lmss RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
@@ -48,8 +47,8 @@ set(CPACK_PACKAGE_VENDOR "WEY Technology AG")
 set(CPACK_PACKAGE_NAME "LMSS")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "Package for Mouse Switching Software for WEYTEC IP Remote and Deskswitch products for Linux and Unix OS ")
-set(CPACK_PACKAGE_VERSION_MAJOR "3")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_MAJOR "4")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")

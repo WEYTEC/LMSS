@@ -211,9 +211,8 @@ void usb_dev::done() {
 }
 
 void usb_dev::detach_kernel_driver() {
-    struct usbdevfs_getdriver getdrv {
-        .interface = 2
-    };
+    struct usbdevfs_getdriver getdrv = { };
+    getdrv.interface = 2;
 
     if (ioctl(*hid_fd, USBDEVFS_GETDRIVER, &getdrv) < 0) {
         log.debug("usbdevfs getdriver failed, should be fine since we can claim the interface now");
