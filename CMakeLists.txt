@@ -20,6 +20,7 @@ set(XDG_AUTOSTART_DIR "/etc/xdg/autostart"
 add_executable(lmss
     src/display.cpp
     src/event_loop.cpp
+    src/file_descriptor.cpp
     src/lmss.cpp
     src/logger.cpp
     src/main.cpp

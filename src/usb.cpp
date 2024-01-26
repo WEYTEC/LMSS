@@ -2,6 +2,8 @@
 
 #include <sys/timerfd.h>
 
+#include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 
@@ -18,20 +20,19 @@ usb_dev::usb_dev(logger & log, context & ctx)
             struct usb_device_descriptor desc;
             ssize_t expected_size = sizeof(desc);
             // TODO we could also use /sys/bus/usb/* to get the descriptor
-            // TODO encapsulate fd in a file_descriptor class to close it automatically
 
-            auto const fd = ::open(entry.path().c_str(), O_RDWR | O_CLOEXEC, 0);
-            if (fd == -1) {
+            auto fd = file_descriptor(::open(entry.path().c_str(), O_RDWR | O_CLOEXEC, 0));
+            if (!fd.valid()) {
                 log.warn("failed to open " + entry.path().string());
                 continue;
             }
 
-            auto offset = ::lseek(fd, 0, SEEK_SET);
+            auto offset = ::lseek(*fd, 0, SEEK_SET);
             if (offset == -1) {
                 throw std::system_error(errno, std::system_category(), "failed to seek to usb dev descriptor");
             }
 
-            auto size = ::read(fd, &desc, expected_size);
+            auto size = ::read(*fd, &desc, expected_size);
             if (size == -1) {
                 throw std::system_error(errno, std::system_category(), "failed to read usb dev descriptor");
             }
@@ -47,23 +48,22 @@ usb_dev::usb_dev(logger & log, context & ctx)
             log.info(ss.str());
 
             if (desc.idVendor == 0x1b07 && desc.idProduct >= 0x1000 && desc.idProduct <= 0x10ff) {
-                hid_fd = fd;
+                hid_fd = std::move(fd);
 
                 detach_kernel_driver();
 
                 int iface = 2;
-                if (ioctl(fd, USBDEVFS_CLAIMINTERFACE, &iface) < 0) {
+                if (ioctl(*hid_fd, USBDEVFS_CLAIMINTERFACE, &iface) < 0) {
                     throw std::system_error(errno, std::system_category(), "failed to claim hid dev");
                 }
                 heartbeat();
 
                 break;
-            } else {
-                ::close(fd);
             }
         }
     }
-    if (hid_fd < 0) {
+
+    if (!hid_fd.valid()) {
         throw std::runtime_error("wey usb device not found");
     }
 
@@ -73,11 +73,11 @@ usb_dev::usb_dev(logger & log, context & ctx)
     ts.it_value.tv_sec = 0;
     ts.it_value.tv_nsec = 10 * 1000;
 
-    if (timerfd_settime(tfd, 0, &ts, NULL) < 0) {
+    if (timerfd_settime(*tfd, 0, &ts, NULL) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to arm timer");
     }
 
-    ctx.get_el().add_fd(tfd, std::bind(&usb_dev::handle_events, this, std::placeholders::_1));
+    ctx.get_el().add_fd(*tfd, std::bind(&usb_dev::handle_events, this, std::placeholders::_1));
     read_mouse_pos();
 }
 
@@ -90,7 +90,7 @@ void usb_dev::submit_transfer(transfer_t & t) {
     urb->buffer = t.buf.data();
     urb->buffer_length = t.buf.size();
 
-    if (ioctl(hid_fd, USBDEVFS_SUBMITURB, urb) < 0) {
+    if (ioctl(*hid_fd, USBDEVFS_SUBMITURB, urb) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to submit urb");
     }
     log.debug("done");
@@ -106,7 +106,7 @@ void usb_dev::handle_events(int) {
 
 bool usb_dev::reap() {
     struct usbdevfs_urb * urb = nullptr;
-    auto ret = ioctl(hid_fd, USBDEVFS_REAPURBNDELAY, &urb);
+    auto ret = ioctl(*hid_fd, USBDEVFS_REAPURBNDELAY, &urb);
 
     if (ret < 0) {
         if (errno != EAGAIN) {
@@ -159,7 +159,7 @@ void usb_dev::heartbeat() {
         .data = buf.data()
     };
 
-    if (ioctl(hid_fd, USBDEVFS_BULK, &data) < 0) {
+    if (ioctl(*hid_fd, USBDEVFS_BULK, &data) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to send heartbeat");
     }
 }
@@ -186,7 +186,7 @@ void usb_dev::send_mouse_pos(mouse_pos_t const & mp) {
         .data = buf.data()
     };
 
-    if (ioctl(hid_fd, USBDEVFS_BULK, &data) < 0) {
+    if (ioctl(*hid_fd, USBDEVFS_BULK, &data) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to send done");
     }
 
@@ -205,7 +205,7 @@ void usb_dev::done() {
         .data = buf.data()
     };
 
-    if (ioctl(hid_fd, USBDEVFS_BULK, &data) < 0) {
+    if (ioctl(*hid_fd, USBDEVFS_BULK, &data) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to send done");
     }
 }

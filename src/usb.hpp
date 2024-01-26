@@ -7,12 +7,10 @@
 #include <fcntl.h>
 
 #include <array>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <optional>
 
 #include "context.hpp"
+#include "file_descriptor.hpp"
 #include "logger.hpp"
 #include "types.hpp"
 
@@ -43,6 +41,6 @@ private:
     std::vector<transfer_t> transfers;
     logger & log;
     context & ctx;
-    int hid_fd = -1;
-    int tfd = -1;
+    file_descriptor hid_fd;
+    file_descriptor tfd;
 };

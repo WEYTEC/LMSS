@@ -41,31 +41,6 @@ int main(int argc, char* argv[]) {
     try {
         lmss l(log);
         l.run();
-        // event_loop el(log);
-        // log.info("connecting usb...");
-        // usb_dev usb(log, el);
-        // display dsp(log, el, usb);
-
-        // el.run();
-
-
-        // auto last_heartbeat = std::chrono::steady_clock::now();
-
-        // while (true) {
-        //     auto now = std::chrono::steady_clock::now();
-        //     dsp.handle_events();
-
-        //     auto mp = usb.read_mouse_pos();
-        //     if (mp.has_value()) {
-        //         dsp.set_mouse_pos(mp.value());
-        //     }
-
-        //     if (now - last_heartbeat >= std::chrono::seconds(1)) {
-        //         last_heartbeat = now;
-        //         usb.heartbeat();
-        //     }
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        // }
     } catch (std::runtime_error const & e) {
         log.err(e.what());
         return -1;

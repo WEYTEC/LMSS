@@ -77,7 +77,8 @@ display::display(logger & log, context & ctx)
     }
 
     XSync(dsp.get(), False);
-    ctx.get_el().add_fd(ConnectionNumber(dsp.get()), std::bind(&display::handle_events, this, std::placeholders::_1));
+    xfd = file_descriptor(ConnectionNumber(dsp.get()));
+    ctx.get_el().add_fd(*xfd, std::bind(&display::handle_events, this, std::placeholders::_1));
 }
 
 void display::set_mouse_pos(mouse_pos_t const & mp) {

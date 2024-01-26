@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "context.hpp"
+#include "file_descriptor.hpp"
 #include "logger.hpp"
 #include "rect.hpp"
 
@@ -32,6 +33,7 @@ private:
         int h;
     };
 
+    file_descriptor xfd;
     logger & log;
     context & ctx;
     int xi_opcode = 0;
