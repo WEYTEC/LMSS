@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <iostream>
 
-static const char* levels [] = {
+static const char* levels[] = {
     "Emergency", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug"
 };
 
@@ -17,6 +17,7 @@ uint64_t timestamp() {
 
 logger::logger(std::string const & name, int level)
     : ll(level) {
+
     openlog(name.c_str(), LOG_CONS, LOG_LOCAL1);
     setlogmask(LOG_UPTO(level));
 }

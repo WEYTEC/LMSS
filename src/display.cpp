@@ -61,8 +61,10 @@ display::display(logger & log, context & ctx)
 
             border_rects.emplace_back(mi.x, mi.y, BORDER_WIDTH, mi.height, i, border_t::LEFT);
             border_rects.emplace_back(mi.x, mi.y, mi.width, BORDER_WIDTH, i, border_t::TOP);
-            border_rects.emplace_back(mi.x + mi.width - BORDER_WIDTH, mi.y, BORDER_WIDTH, mi.height, i, border_t::RIGHT);
-            border_rects.emplace_back(mi.x, mi.y + mi.height - BORDER_WIDTH, mi.width, BORDER_WIDTH, i, border_t::BOTTOM);
+            border_rects.emplace_back(mi.x + mi.width - BORDER_WIDTH, mi.y, BORDER_WIDTH, mi.height,
+                                      i, border_t::RIGHT);
+            border_rects.emplace_back(mi.x, mi.y + mi.height - BORDER_WIDTH, mi.width, BORDER_WIDTH,
+                                      i, border_t::BOTTOM);
 
             monitors.emplace_back(monitor_t { .id = i, .x = mi.x, .y = mi.y, .w = mi.width, .h = mi.height });
             width += mi.width;
@@ -71,7 +73,7 @@ display::display(logger & log, context & ctx)
 
         log.info("display size: " + std::to_string(width) + "x" + std::to_string(height));
 
-        if(auto mask = XISelectEvents(dsp.get(), root, evmasks, 1); mask > 0) {
+        if (auto mask = XISelectEvents(dsp.get(), root, evmasks, 1); mask > 0) {
             throw std::runtime_error("failed to select XI events");
         }
     }
@@ -147,7 +149,7 @@ void display::handle_events(int) {
             int x, y;
             unsigned int mask;
 
-            if(!XQueryPointer(dsp.get(), XDefaultRootWindow(dsp.get()), &root, &child, &root_x, &root_y,
+            if (!XQueryPointer(dsp.get(), XDefaultRootWindow(dsp.get()), &root, &child, &root_x, &root_y,
                 &x, &y, &mask)) {
 
                 log.warn("X event for other screen?");

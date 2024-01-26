@@ -2,7 +2,7 @@
 
 class file_descriptor final {
 public:
-    file_descriptor() {};
+    file_descriptor() {}
     file_descriptor(int);
     ~file_descriptor();
 

@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 
 #include <system_error>
+#include <utility>
 
 event_loop::event_loop(logger & log)
     : log(log)

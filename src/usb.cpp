@@ -6,6 +6,8 @@
 #include <fstream>
 #include <functional>
 #include <iomanip>
+#include <string>
+#include <utility>
 
 static const char USB_PATH[] = "/dev/bus/usb";
 static const unsigned int TRANSFER_TIMEOUT = 50;
@@ -19,7 +21,6 @@ usb_dev::usb_dev(logger & log, context & ctx)
         if (!entry.is_directory()) {
             struct usb_device_descriptor desc;
             ssize_t expected_size = sizeof(desc);
-            // TODO we could also use /sys/bus/usb/* to get the descriptor
 
             auto fd = file_descriptor(::open(entry.path().c_str(), O_RDWR | O_CLOEXEC, 0));
             if (!fd.valid()) {
