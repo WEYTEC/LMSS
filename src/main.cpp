@@ -38,12 +38,15 @@ int main(int argc, char* argv[]) {
 
     logger log("LMSS", log_level);
 
-    try {
-        lmss l(log);
-        l.run();
-    } catch (std::runtime_error const & e) {
-        log.err(e.what());
-        return -1;
+    while (true) {
+        try {
+            lmss l(log);
+            l.run();
+        } catch (std::runtime_error const & e) {
+            log.err(e.what());
+            log.warn("reinitializing");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
 
     return 0;

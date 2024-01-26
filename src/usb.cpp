@@ -211,23 +211,27 @@ void usb_dev::done() {
 }
 
 void usb_dev::detach_kernel_driver() {
-    struct usbdevfs_ioctl command;
-    struct usbdevfs_getdriver getdrv;
+    struct usbdevfs_getdriver getdrv {
+        .interface = 2
+    };
 
-    command.ifno = 2;
-    command.ioctl_code = USBDEVFS_DISCONNECT;
-    command.data = NULL;
+    if (ioctl(*hid_fd, USBDEVFS_GETDRIVER, &getdrv) < 0) {
+        log.debug("usbdevfs getdriver failed, should be fine since we can claim the interface now");
+        return;
+    }
 
-    getdrv.interface = 2;
-    // if (ioctl(hid_fd, USBDEVFS_GETDRIVER, &getdrv) < 0) {
-    //     throw std::system_error(errno, std::system_category(), "failed to get kernel driver");
-    // }
+    if (std::string(getdrv.driver) != "usbfs") {
+        log.debug("usbfs not attached");
+        return;
+    }
 
-    // if (std::string(getdrv.driver) != "usbfs") {
-    //     throw std::runtime_error("usbfs not attached");
-    // }
+    struct usbdevfs_ioctl command {
+        .ifno = 2,
+        .ioctl_code = USBDEVFS_DISCONNECT,
+        .data = NULL
+    };
 
-    // if (ioctl(hid_fd, USBDEVFS_IOCTL, &command) < 0) {
-    //     throw std::system_error(errno, std::system_category(), "failed to detach kernel driver");
-    // }
+    if (ioctl(*hid_fd, USBDEVFS_IOCTL, &command) < 0) {
+        log.debug("failed to detach kernel driver");
+    }
 }
