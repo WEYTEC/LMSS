@@ -64,7 +64,7 @@ display::display(logger & log, context & ctx)
             border_rects.emplace_back(mi.x + mi.width - BORDER_WIDTH, mi.y, BORDER_WIDTH, mi.height, i, border_t::RIGHT);
             border_rects.emplace_back(mi.x, mi.y + mi.height - BORDER_WIDTH, mi.width, BORDER_WIDTH, i, border_t::BOTTOM);
 
-            monitors.emplace_back(monitor_t { .x = mi.x, .y = mi.y, .w = mi.width, .h = mi.height });
+            monitors.emplace_back(monitor_t { .id = i, .x = mi.x, .y = mi.y, .w = mi.width, .h = mi.height });
             width += mi.width;
             height += mi.height;
         }
@@ -121,6 +121,7 @@ void display::set_mouse_pos(mouse_pos_t const & mp) {
             y = monitors[mp.screen].y + monitors[mp.screen].h / 2;
     }
     XWarpPointer(dsp.get(), None, XDefaultRootWindow(dsp.get()), 0, 0, 0, 0, x, y);
+    last_pos = { x, y };
     XFlush(dsp.get());
 }
 
@@ -150,7 +151,7 @@ void display::handle_events(int) {
                 &x, &y, &mask)) {
 
                 log.warn("X event for other screen?");
-                continue; // other screen
+                continue;
             }
             log.debug("pointer: " + std::to_string(root_x) + "/" + std::to_string(root_y));
 
@@ -159,29 +160,78 @@ void display::handle_events(int) {
                 continue;
             }
 
-            for (auto & b : border_rects) {
-                if (b.inside(root_x, root_y)) {
+            // we need to check if we crossed a border since last pointer update
+            if (std::abs(root_x - last_pos.x) > 1 || std::abs(root_y - last_pos.y) > 1) {
+                auto const & m_last = get_mon_for_pos(last_pos);
+                auto const & m_cur = get_mon_for_pos({root_x, root_y});
+
+                if (m_last != m_cur) {
+                    border_t border;
                     uint16_t pos = 0;
-                    switch (b.border) {
-                        case border_t::TOP:
-                        case border_t::BOTTOM:
-                            pos = RESOLUTION * (root_x - b.x) / b.w;
-                            break;
-                        case border_t::LEFT:
-                        case border_t::RIGHT:
-                            pos = RESOLUTION * (root_y - b.y) / b.h;
-                            break;
-                        default:
-                            throw std::runtime_error("invalid border");
+                    if (m_cur.x == m_last.x) {
+                        log.debug("mons are above each other: "
+                                  + std::to_string(m_cur.y) + "+" + std::to_string(m_cur.h) + " | "
+                                  + std::to_string(m_last.y) + "+" + std::to_string(m_last.h));
+
+                        pos = RESOLUTION * (root_x - m_cur.x) / m_cur.w;
+                        border = m_cur.y + m_cur.h == m_last.y ? border_t::TOP : border_t::BOTTOM;
+                    } else {
+                        log.debug("mons are next to each other: "
+                                  + std::to_string(m_cur.x) + "+" + std::to_string(m_cur.w) + " | "
+                                  + std::to_string(m_last.x) + "+" + std::to_string(m_last.w));
+
+                        border = m_cur.x + m_cur.w == m_last.x ? border_t::LEFT : border_t::RIGHT;
+                        pos = RESOLUTION * (root_y - m_cur.y) / m_cur.h;
                     }
+                    log.debug("border: " + std::to_string(border));
 
-                    log.debug("pointer at border " + std::to_string(b.border) + " of screen "
-                        + std::to_string(b.screen));
+                    ctx.mouse_at_border({
+                        .screen = static_cast<uint8_t>(m_last.id),
+                        .border = border,
+                        .pos = pos
+                    });
+                }
+            } else {
+                for (auto & b : border_rects) {
+                    if (b.inside(root_x, root_y)) {
+                        uint16_t pos = 0;
+                        switch (b.border) {
+                            case border_t::TOP:
+                            case border_t::BOTTOM:
+                                pos = RESOLUTION * (root_x - b.x) / b.w;
+                                break;
+                            case border_t::LEFT:
+                            case border_t::RIGHT:
+                                pos = RESOLUTION * (root_y - b.y) / b.h;
+                                break;
+                            default:
+                                throw std::runtime_error("invalid border");
+                        }
 
-                    ctx.mouse_at_border({ .screen = static_cast<uint8_t>(b.screen), .border = b.border, .pos = pos});
-                    break;
+                        log.debug("pointer at border " + std::to_string(b.border) + " of screen "
+                            + std::to_string(b.screen));
+
+                        ctx.mouse_at_border({
+                            .screen = static_cast<uint8_t>(b.screen),
+                            .border = b.border,
+                            .pos = pos
+                        });
+
+                        break;
+                    }
                 }
             }
+            last_pos = { root_x, root_y };
         }
     }
+}
+
+display::monitor_t const & display::get_mon_for_pos(pos_t const & pos) const {
+    for (auto const & m : monitors) {
+        if (pos.x >= m.x && pos.x <= m.x + m.w && pos.y >= m.y && pos.y <= m.y + m.h) {
+            return m;
+        }
+    }
+
+    throw std::logic_error("pointer not inside of any known monitor");
 }

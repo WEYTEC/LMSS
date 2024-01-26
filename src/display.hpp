@@ -27,12 +27,28 @@ private:
     using monitors_t = std::unique_ptr<XRRMonitorInfo, monitors_deleter>;
 
     struct monitor_t {
+        int id;
         int x;
         int y;
         int w;
         int h;
+
+        inline bool operator==(monitor_t const & other) const {
+            return std::tie(id, x, y, w, h) ==
+                std::tie(other.id, other.x, other.y, other.w, other.h);
+        }
+
+        inline bool operator!=(monitor_t const & other) const { return !operator==(other); }
     };
 
+    struct pos_t {
+        int x = 0;
+        int y = 0;
+    };
+
+    monitor_t const & get_mon_for_pos(pos_t const &) const;
+
+    pos_t last_pos;
     file_descriptor xfd;
     logger & log;
     context & ctx;
