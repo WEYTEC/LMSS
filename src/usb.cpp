@@ -54,6 +54,11 @@ usb_dev::usb_dev(logger & log, context & ctx)
                 detach_kernel_driver();
 
                 int iface = 2;
+
+                if (ioctl(*hid_fd, USBDEVFS_RELEASEINTERFACE, &iface) < 0) {
+                    throw std::system_error(errno, std::system_category(), "failed to release interface");
+                }
+
                 if (ioctl(*hid_fd, USBDEVFS_CLAIMINTERFACE, &iface) < 0) {
                     throw std::system_error(errno, std::system_category(), "failed to claim hid dev");
                 }
