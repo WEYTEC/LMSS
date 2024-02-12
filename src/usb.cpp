@@ -53,11 +53,7 @@ usb_dev::usb_dev(logger & log, context & ctx)
 
                 detach_kernel_driver();
 
-                int iface = 2;
-
-                if (ioctl(*hid_fd, USBDEVFS_RELEASEINTERFACE, &iface) < 0) {
-                    throw std::system_error(errno, std::system_category(), "failed to release interface");
-                }
+                unsigned int iface = 2;
 
                 if (ioctl(*hid_fd, USBDEVFS_CLAIMINTERFACE, &iface) < 0) {
                     throw std::system_error(errno, std::system_category(), "failed to claim hid dev");
@@ -226,8 +222,8 @@ void usb_dev::detach_kernel_driver() {
     }
 
     if (std::string(getdrv.driver) != "usbfs") {
-        log.debug("usbfs not attached");
-        return;
+        log.debug("usbfs not attached, current driver: " + std::string(getdrv.driver));
+        ioctl(*hid_fd, USBDEVFS_RESET, NULL);
     }
 
     struct usbdevfs_ioctl command {
