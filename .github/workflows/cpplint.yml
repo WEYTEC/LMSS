@@ -7,5 +7,5 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
     - run: pip install cpplint
-    - run: cpplint --recursive --linelength=120 --filter=-whitespace/blank_line,-build/c++11,-whitespace/indent,-legal/copyright,-whitespace/comments,-runtime/references,-build/include_subdir ./src
+    - run: cpplint --recursive --exclude=./src/argparse.hpp --linelength=120 --filter=-whitespace/blank_line,-build/c++11,-whitespace/indent,-legal/copyright,-whitespace/comments,-runtime/references,-build/include_subdir ./src
 

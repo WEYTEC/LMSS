@@ -6,6 +6,10 @@ set(CMAKE_PROJECT_NAME "LMSS")
 set(CMAKE_PROJECT_DESCRIPTION
     "Mouse Switching Software for WEYTEC IP Remote and Deskswitch products for Linux and Unix OS")
 
+set(lmss_VERSION_MAJOR 4)
+set(lmss_VERSION_MINOR 0)
+set(lmss_VERSION_PATCH 3)
+
 include(GNUInstallDirs)
 
 find_package(PkgConfig REQUIRED)
@@ -16,6 +20,13 @@ pkg_check_modules(Xi REQUIRED IMPORTED_TARGET xi)
 
 set(XDG_AUTOSTART_DIR "/etc/xdg/autostart"
     CACHE PATH "Path to the freedesktop autostart directory")
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/src/config.hpp.in"
+    "${PROJECT_BINARY_DIR}/config.hpp"
+)
+
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(lmss
     src/display.cpp
@@ -56,9 +67,9 @@ set(CPACK_PACKAGE_VENDOR "WEY Technology AG")
 set(CPACK_PACKAGE_NAME "LMSS")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "Package for Mouse Switching Software for WEYTEC IP Remote and Deskswitch products for Linux and Unix OS ")
-set(CPACK_PACKAGE_VERSION_MAJOR "4")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "3")
+set(CPACK_PACKAGE_VERSION_MAJOR ${lmss_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${lmss_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${lmss_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 

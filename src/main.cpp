@@ -1,40 +1,39 @@
-#include <syslog.h>
-
 #include <iostream>
-#include <memory>
 #include <thread>
-#include <vector>
 
+#include "argparse.hpp"
+#include "config.hpp"
 #include "lmss.hpp"
-// #include "display.hpp"
-// #include "event_loop.hpp"
 #include "logger.hpp"
-// #include "usb.hpp"
 
 int main(int argc, char* argv[]) {
-    int log_level = LOG_ERR;
-    int c = 0;
+    argparse::ArgumentParser app("lmss", VERSION, argparse::default_arguments::help);
+    app.add_argument("-v")
+        .default_value(3)
+        .choices(0, 1, 2, 3, 4, 5, 6, 7)
+        .metavar("LEVEL")
+        .nargs(1)
+        .scan<'i', int>()
+        .help("set log verbosity (0-7)");
+    app.add_argument("-V", "--version")
+        .default_value(false)
+        .implicit_value(true)
+        .help("print lmss version");
 
-    while ((c = getopt(argc, argv, "v::")) != -1) {
-        switch (c) {
-            case 'v':
-                log_level = std::stoi(optarg);
-                if (log_level < 0 || log_level > 7) {
-                    std::cout << "invalid log level (0-7)" << std::endl;
-                    return -1;
-                }
-                break;
-            case '?':
-                if (optopt == 'v') {
-                    std::cout << "Option -" << optopt << " requires an argument." << std::endl;
-                } else {
-                    std::cout << "invalid option" << std::endl;
-                }
-                return -1;
-            default:
-                return -1;
-        }
+    try {
+        app.parse_args(argc, argv);
+    } catch (std::exception const & e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << app;
+        std::exit(1);
     }
+
+    if (app.get<bool>("-V")) {
+        std::cout << "lmss version " << VERSION << std::endl;
+        return 0;
+    }
+
+    auto log_level = app.get<int>("-v");
 
     logger log("LMSS", log_level);
 
