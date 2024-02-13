@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 #pragma once
 
 #include <linux/usb/ch9.h>

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 #include "usb.hpp"
 
 #include <sys/timerfd.h>

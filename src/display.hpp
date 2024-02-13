@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 #pragma once
 
 #include <X11/extensions/Xrandr.h>

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 #include "file_descriptor.hpp"
 
 #include <unistd.h>

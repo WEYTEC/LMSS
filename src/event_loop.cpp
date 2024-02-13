@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 #include "event_loop.hpp"
 
 #include <sys/epoll.h>
