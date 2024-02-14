@@ -34,7 +34,7 @@ display::display(logger & log, context & ctx)
     }
 
     unsigned char mask_bytes[(XI_LASTEVENT + 7) / 8] = {0};
-    XISetMask(mask_bytes, XI_Motion);
+    XISetMask(mask_bytes, XI_RawMotion);
 
     XIEventMask evmasks[1];
     evmasks[0].deviceid = XIAllDevices;
@@ -140,7 +140,7 @@ void display::handle_events(int) {
                 continue;
             }
 
-            if (ev.xcookie.evtype != XI_Motion || hidden) {
+            if (ev.xcookie.evtype != XI_RawMotion || hidden) {
                 XFreeEventData(dsp.get(), &ev.xcookie);
                 continue;
             }
