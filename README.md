@@ -176,7 +176,35 @@ cpack -G DEB
 cpack -G RPM
 ```
 
+## Debugging
+
+The verbosity of log messages can be set with the `-v` command line argument. To
+enable the most verbose output (debug level) set `-v` to level 7:
+
+``` shell
+lmss -v 7
+```
+
+See the usage output for more options:
+
+``` shell
+lmss --help
+```
+
+### Verbosity levels
+
+| Level | Description   |
+|-------|---------------|
+| 1     | Alert         |
+| 2     | Critical      |
+| 3     | Error         |
+| 4     | Warning       |
+| 5     | Notice        |
+| 6     | Informational |
+| 7     | Debug         |
+
 ## Known Limitations
+
 * requires X.org as session window system at the moment
 * on some distributions Mouse Switching does not work on the login screen, due to missing user rights
 
