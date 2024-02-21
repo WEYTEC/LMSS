@@ -2,9 +2,14 @@
 
 #include "display.hpp"
 
+#include <filesystem>
+#include <fstream>
+#include <regex>
 #include <sstream>
 
 #include "types.hpp"
+
+static const char screen_config_file[] = "/etc/lmss.sl";
 
 static const int BORDER_WIDTH = 1;
 static const int BORDER_CLEARANCE = 8;
@@ -33,6 +38,48 @@ display::display(logger & log, context & ctx)
         throw std::runtime_error("XInput 2.0 not supported");
     }
 
+    if (std::filesystem::exists(screen_config_file)) {
+        read_screen_layout_from_file(screen_config_file);
+    } else {
+        detect_screen_layout();
+    }
+
+    XSync(dsp.get(), False);
+    xfd = file_descriptor(ConnectionNumber(dsp.get()));
+    ctx.get_el().add_fd(*xfd, std::bind(&display::handle_events, this, std::placeholders::_1));
+}
+
+void display::read_screen_layout_from_file(std::string const & config_file) {
+    std::ifstream cf(config_file);
+
+    std::regex screen_regex("^([0-9]+)x([0-9]+)\\+([0-9]+)\\+([0-9]+$)");
+    std::smatch screen_match;
+
+    int mon = 0;
+    for (std::string line; std::getline(cf, line);) {
+        if (std::regex_search(line, screen_match, screen_regex)) {
+            log.debug("adding screen with config: " + line);
+            auto w = std::stoi(screen_match[1]);
+            auto h = std::stoi(screen_match[2]);
+            auto x = std::stoi(screen_match[3]);
+            auto y = std::stoi(screen_match[4]);
+
+            add_monitor(mon, x, y, w, h);
+        } else {
+            throw std::runtime_error("failed to parse screen configuration: " + line);
+        }
+
+        mon++;
+    }
+
+    if (mon == 0) {
+        throw std::runtime_error("empty screen layout configuration");
+    }
+
+    subscribe_to_motion_events(XDefaultRootWindow(dsp.get()));
+}
+
+void display::subscribe_to_motion_events(Window win) {
     unsigned char mask_bytes[(XI_LASTEVENT + 7) / 8] = {0};
     XISetMask(mask_bytes, XI_RawMotion);
 
@@ -41,6 +88,12 @@ display::display(logger & log, context & ctx)
     evmasks[0].mask_len = sizeof(mask_bytes);
     evmasks[0].mask = mask_bytes;
 
+    if (auto mask = XISelectEvents(dsp.get(), win, evmasks, 1); mask > 0) {
+        throw std::runtime_error("failed to select XI events");
+    }
+}
+
+void display::detect_screen_layout() {
     int screens = XScreenCount(dsp.get());
     log.info("display has " + std::to_string(screens) + " screens");
 
@@ -61,28 +114,23 @@ display::display(logger & log, context & ctx)
                << mi.width << "x" << mi.height;
             log.info(ss.str());
 
-            border_rects.emplace_back(mi.x, mi.y, BORDER_WIDTH, mi.height, i, border_t::LEFT);
-            border_rects.emplace_back(mi.x, mi.y, mi.width, BORDER_WIDTH, i, border_t::TOP);
-            border_rects.emplace_back(mi.x + mi.width - BORDER_WIDTH, mi.y, BORDER_WIDTH, mi.height,
-                                      i, border_t::RIGHT);
-            border_rects.emplace_back(mi.x, mi.y + mi.height - BORDER_WIDTH, mi.width, BORDER_WIDTH,
-                                      i, border_t::BOTTOM);
-
-            monitors.emplace_back(monitor_t { .id = i, .x = mi.x, .y = mi.y, .w = mi.width, .h = mi.height });
-            width += mi.width;
-            height = std::max(mi.y + mi.height, height);
+            add_monitor(i, mi.x, mi.y, mi.width, mi.height);
         }
 
         log.info("display size: " + std::to_string(width) + "x" + std::to_string(height));
-
-        if (auto mask = XISelectEvents(dsp.get(), root, evmasks, 1); mask > 0) {
-            throw std::runtime_error("failed to select XI events");
-        }
+        subscribe_to_motion_events(root);
     }
+}
 
-    XSync(dsp.get(), False);
-    xfd = file_descriptor(ConnectionNumber(dsp.get()));
-    ctx.get_el().add_fd(*xfd, std::bind(&display::handle_events, this, std::placeholders::_1));
+void display::add_monitor(int mon, int x, int y, int w, int h) {
+    border_rects.emplace_back(x, y, BORDER_WIDTH, h, mon, border_t::LEFT);
+    border_rects.emplace_back(x, y, w, BORDER_WIDTH, mon, border_t::TOP);
+    border_rects.emplace_back(x + w - BORDER_WIDTH, y, BORDER_WIDTH, h, mon, border_t::RIGHT);
+    border_rects.emplace_back(x, y + h - BORDER_WIDTH, w, BORDER_WIDTH, mon, border_t::BOTTOM);
+
+    monitors.emplace_back(monitor_t { .id = mon, .x = x, .y = y, .w = w, .h = h });
+    width += w;
+    height = std::max(y + h, height);
 }
 
 void display::set_mouse_pos(mouse_pos_t const & mp) {
