@@ -29,6 +29,8 @@ It works with the following products of WEY Technology AG:
 
 ## Installing
 
+Installing lmss through the rpm or deb package will enable lmss autostart.
+
 ### Graphical Package Managers
 
 Download the latest binary [release](https://github.com/WEYTEC/LMSS/releases)
@@ -64,8 +66,6 @@ sudo yum install /PATH/TO/PACKAGE.rpm
 ```
 
 ### Manual Installation
-
-## Manual Install
 
 If you decide to do a manual install you will need a terminal with root
 permissions, the `lmss` executable and a `lmss.desktop` file. 
@@ -115,6 +115,9 @@ sudo mv 100-wey-usbhid.rules /usr/lib/udev/rules.d/100-wey-usbhid.rules
 lmss uses the autostart feature described in the Desktop Application Autostart
 Specification on
 [freedesktop.org](https://specifications.freedesktop.org/autostart-spec/0.5/index.html) 
+
+The following is only necessary if lmss was manually installed. The installation
+through the rpm or deb package automatically starts lmss.
 
 ### How to enable the autostart feature globally
 
