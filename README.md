@@ -160,6 +160,23 @@ that are needed to make the software run on other distributions and versions.
  - libxi-dev
  - libxrandr-dev
 
+#### Build Environment Ubuntu 20.04
+
+```shell
+apt install git build-essential cmake libxi-dev libxrandr-dev gcc-10 g++-10 cpp-10
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+    --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+```
+
+Verify that gcc-10 is now the default:
+
+```shell
+$ gcc --version
+gcc (Ubuntu 10.5.0-1ubuntu1~20.04) 10.5.0
+...
+```
+
 ### Compiling
 
 ``` shell
