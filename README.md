@@ -177,6 +177,18 @@ gcc (Ubuntu 10.5.0-1ubuntu1~20.04) 10.5.0
 ...
 ```
 
+#### Build Environment CentOS 7
+
+``` shell
+yum install centos-release-scl
+yum install llvm-toolset-7-cmake git devtoolset-11 rpm-build libXi-devel libXrandr-devel llvm-toolset-7-cmake devtoolset-11
+```
+
+Get a shell with `cmake` and `gcc` in the correct version:
+``` shell
+scl enable devtoolset-11 llvm-toolset-7 bash
+```
+
 ### Compiling
 
 ``` shell
