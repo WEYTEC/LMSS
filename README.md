@@ -99,7 +99,16 @@ will use the global autostart directory.
 sudo mv lmss.desktop /etc/xdg/autostart/lmss.desktop
 ```
 
-After logoff/login lmss should autostart with your user session.
+**The udev.rules file** is needed since v4.0.x and can be downloaded from
+[releases](https://github.com/WEYTEC/LMSS/releases). It shall be moved to the 
+udev-rules.d dir, e.g. `/usr/lib/udev/rules.d/`
+
+```sh
+sudo mv 100-wey-usbhid.rules /usr/lib/udev/rules.d/100-wey-usbhid.rules
+```
+
+**_After logoff/login_** lmss should autostart with your user session.
+
 
 ## Autostart
 
