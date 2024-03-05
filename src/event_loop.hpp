@@ -5,6 +5,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "file_descriptor.hpp"
 #include "logger.hpp"
 
 class event_loop final {
@@ -17,6 +18,6 @@ public:
 
 private:
     logger & log;
-    int epoll_fd = -1;
+    file_descriptor epoll_fd;
     std::unordered_map<int, callback> fd_handlers;
 };

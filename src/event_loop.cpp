@@ -11,7 +11,7 @@ event_loop::event_loop(logger & log)
     : log(log)
     , epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
 
-    if (epoll_fd < 0) {
+    if (!epoll_fd.valid()) {
         throw std::system_error(errno, std::system_category(), "failed to create epoll fd");
     }
 
@@ -22,7 +22,7 @@ void event_loop::run() {
 
     std::array<epoll_event, 8> events;
     for (;;) {
-        auto fds = epoll_wait(epoll_fd, events.data(), events.size(), -1);
+        auto fds = epoll_wait(*epoll_fd, events.data(), events.size(), -1);
         if (fds < 0) {
             throw std::system_error(errno, std::system_category(), "epoll_wait failed");
         }
@@ -42,7 +42,7 @@ void event_loop::add_fd(int fd, callback && cb) {
     ev.events = EPOLLIN | EPOLLPRI;
     ev.data.fd = fd;
 
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev) < 0) {
+    if (epoll_ctl(*epoll_fd, EPOLL_CTL_ADD, fd, &ev) < 0) {
         throw std::system_error(errno, std::system_category(), "epoll_ctl failed");
     }
 
