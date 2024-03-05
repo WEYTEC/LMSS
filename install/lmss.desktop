@@ -3,6 +3,6 @@ Type=Application
 Encoding=UTF-8
 Name=LMSS
 Comment=Linux Mouse Switching Software
-Exec=lmss
+Exec=/usr/bin/env bash -c "ps -C lmss || /usr/bin/lmss"
 Icon=application.png
 Terminal=false
