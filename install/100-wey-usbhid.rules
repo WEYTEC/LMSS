@@ -1,1 +1,0 @@
-ATTRS{idVendor}=="1b07", ATTRS{idProduct}=="10??", DRIVER=="usbhid", RUN="/bin/sh -c 'echo -n $kernel >/sys/bus/usb/drivers/usbhid/unbind'"
