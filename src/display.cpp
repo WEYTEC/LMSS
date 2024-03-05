@@ -70,7 +70,7 @@ display::display(logger & log, context & ctx)
 
             monitors.emplace_back(monitor_t { .id = i, .x = mi.x, .y = mi.y, .w = mi.width, .h = mi.height });
             width += mi.width;
-            height += mi.height;
+            height = std::max(mi.y + mi.height, height);
         }
 
         log.info("display size: " + std::to_string(width) + "x" + std::to_string(height));
