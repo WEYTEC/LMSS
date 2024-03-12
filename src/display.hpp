@@ -35,10 +35,11 @@ private:
         int y;
         int w;
         int h;
+        Window root;
 
         inline bool operator==(monitor_t const & other) const {
-            return std::tie(id, x, y, w, h) ==
-                std::tie(other.id, other.x, other.y, other.w, other.h);
+            return std::tie(id, x, y, w, h, root) ==
+                std::tie(other.id, other.x, other.y, other.w, other.h, other.root);
         }
 
         inline bool operator!=(monitor_t const & other) const { return !operator==(other); }
@@ -47,12 +48,13 @@ private:
     struct pos_t {
         int x = 0;
         int y = 0;
+        Window root;
     };
 
     monitor_t const & get_mon_for_pos(pos_t const &) const;
     void detect_screen_layout();
     void read_screen_layout_from_file(std::string const &);
-    void add_monitor(int mon, int x, int y, int w, int h);
+    void add_monitor(int mon, int x, int y, int w, int h, Window);
     void subscribe_to_motion_events(Window);
 
     pos_t last_pos;
