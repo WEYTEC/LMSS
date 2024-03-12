@@ -9,6 +9,7 @@
 #include <fcntl.h>
 
 #include <array>
+#include <optional>
 #include <vector>
 
 #include "context.hpp"
@@ -45,4 +46,5 @@ private:
     context & ctx;
     file_descriptor hid_fd;
     file_descriptor tfd;
+    std::optional<mouse_pos_t> last_sent_pos;
 };
