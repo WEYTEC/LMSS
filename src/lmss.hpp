@@ -25,5 +25,5 @@ private:
     event_loop el;
     usb_dev usb;
     display dsp;
-    int tfd;
+    file_descriptor tfd;
 };
