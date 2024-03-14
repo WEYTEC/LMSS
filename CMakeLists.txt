@@ -8,7 +8,7 @@ set(CMAKE_PROJECT_DESCRIPTION
 
 set(lmss_VERSION_MAJOR 4)
 set(lmss_VERSION_MINOR 0)
-set(lmss_VERSION_PATCH 6)
+set(lmss_VERSION_PATCH 8)
 
 include(GNUInstallDirs)
 
