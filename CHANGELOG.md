@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.1.2] - 2024-03-14
+
+### Changed
+- border detection now also considers the root window of the screen, this allows
+  setups with multiple X screens where the screen/monitor layout is not managed
+  by XRandR
+
 ## [4.0.8] - 2024-03-14
 
 ### Fixed
