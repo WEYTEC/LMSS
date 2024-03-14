@@ -133,6 +133,7 @@ bool usb_dev::reap() {
         log.debug(ss.str());
 
         if (buf[0] == 0x05 && buf[1] == 0x00) {
+            last_sent_pos.reset();
             ctx.set_mouse_pos({
                 .screen = buf[2],
                 .border = buf[3],
@@ -175,6 +176,12 @@ void usb_dev::read_mouse_pos() {
 }
 
 void usb_dev::send_mouse_pos(mouse_pos_t const & mp) {
+    if (last_sent_pos.has_value() && (*last_sent_pos).screen == mp.screen && (*last_sent_pos).border == mp.border) {
+        return;
+    }
+
+    last_sent_pos = mp;
+
     std::array<uint8_t, 64> buf {};
     buf[0] = 0x05;
     buf[1] = 0x01;

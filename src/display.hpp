@@ -7,6 +7,7 @@
 #include <X11/extensions/XInput2.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "context.hpp"
@@ -49,6 +50,10 @@ private:
     };
 
     monitor_t const & get_mon_for_pos(pos_t const &) const;
+    void detect_screen_layout();
+    void read_screen_layout_from_file(std::string const &);
+    void add_monitor(int mon, int x, int y, int w, int h);
+    void subscribe_to_motion_events(Window);
 
     pos_t last_pos;
     file_descriptor xfd;

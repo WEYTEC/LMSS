@@ -29,6 +29,8 @@ It works with the following products of WEY Technology AG:
 
 ## Installing
 
+Installing lmss through the rpm or deb package will enable lmss autostart.
+
 ### Graphical Package Managers
 
 Download the latest binary [release](https://github.com/WEYTEC/LMSS/releases)
@@ -64,8 +66,6 @@ sudo yum install /PATH/TO/PACKAGE.rpm
 ```
 
 ### Manual Installation
-
-## Manual Install
 
 If you decide to do a manual install you will need a terminal with root
 permissions, the `lmss` executable and a `lmss.desktop` file. 
@@ -116,6 +116,9 @@ lmss uses the autostart feature described in the Desktop Application Autostart
 Specification on
 [freedesktop.org](https://specifications.freedesktop.org/autostart-spec/0.5/index.html) 
 
+The following is only necessary if lmss was manually installed. The installation
+through the rpm or deb package automatically starts lmss.
+
 ### How to enable the autostart feature globally
 
 Place
@@ -157,6 +160,35 @@ that are needed to make the software run on other distributions and versions.
  - libxi-dev
  - libxrandr-dev
 
+#### Build Environment Ubuntu 20.04
+
+```shell
+apt install git build-essential cmake libxi-dev libxrandr-dev gcc-10 g++-10 cpp-10
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+    --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+```
+
+Verify that gcc-10 is now the default:
+
+```shell
+$ gcc --version
+gcc (Ubuntu 10.5.0-1ubuntu1~20.04) 10.5.0
+...
+```
+
+#### Build Environment CentOS 7
+
+``` shell
+yum install centos-release-scl
+yum install llvm-toolset-7-cmake git devtoolset-11 rpm-build libXi-devel libXrandr-devel llvm-toolset-7-cmake devtoolset-11
+```
+
+Get a shell with `cmake` and `gcc` in the correct version:
+``` shell
+scl enable devtoolset-11 llvm-toolset-7 bash
+```
+
 ### Compiling
 
 ``` shell
@@ -173,7 +205,35 @@ cpack -G DEB
 cpack -G RPM
 ```
 
+## Debugging
+
+The verbosity of log messages can be set with the `-v` command line argument. To
+enable the most verbose output (debug level) set `-v` to level 7:
+
+``` shell
+lmss -v 7
+```
+
+See the usage output for more options:
+
+``` shell
+lmss --help
+```
+
+### Verbosity levels
+
+| Level | Description   |
+|-------|---------------|
+| 1     | Alert         |
+| 2     | Critical      |
+| 3     | Error         |
+| 4     | Warning       |
+| 5     | Notice        |
+| 6     | Informational |
+| 7     | Debug         |
+
 ## Known Limitations
+
 * requires X.org as session window system at the moment
 * on some distributions Mouse Switching does not work on the login screen, due to missing user rights
 
