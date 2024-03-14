@@ -48,7 +48,7 @@ private:
     struct pos_t {
         int x = 0;
         int y = 0;
-        Window root;
+        Window root = 0;
     };
 
     monitor_t const & get_mon_for_pos(pos_t const &) const;

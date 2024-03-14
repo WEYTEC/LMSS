@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <regex>
 #include <sstream>
 
@@ -99,6 +100,7 @@ void display::detect_screen_layout() {
     int screens = XScreenCount(dsp.get());
     log.info("display has " + std::to_string(screens) + " screens");
 
+    size_t id = 0;
     for (auto s = 0; s < screens; ++s) {
         auto screen = XScreenOfDisplay(dsp.get(), s);
         if (!screen) {
@@ -107,16 +109,17 @@ void display::detect_screen_layout() {
 
         auto root = XRootWindowOfScreen(screen);
 
-        int monitor_count = 0;
-        XRRMonitorInfo * moninfo = XRRGetMonitors(dsp.get(), root, 1, &monitor_count);
-        for (auto i = 0; i < monitor_count; ++i) {
-            auto & mi = moninfo[i];
+        int monitors = 0;
+        XRRMonitorInfo * moninfo = XRRGetMonitors(dsp.get(), root, 1, &monitors);
+        for (auto m = 0; m < monitors; ++m) {
+            auto & mi = moninfo[m];
             std::stringstream ss;
-            ss << "monitor " << i << " of screen " << s << ": " << mi.x << " " << mi.y << " "
+            ss << "monitor " << m << " of screen " << s << ": " << mi.x << " " << mi.y << " "
                << mi.width << "x" << mi.height;
             log.info(ss.str());
 
-            add_monitor(s, mi.x, mi.y, mi.width, mi.height, root);
+            add_monitor(id, mi.x, mi.y, mi.width, mi.height, root);
+            ++id;
         }
 
         log.info("display size: " + std::to_string(width) + "x" + std::to_string(height));
@@ -179,7 +182,6 @@ void display::set_mouse_pos(mouse_pos_t const & mp) {
     XFlush(dsp.get());
 }
 
-#include <iostream>
 void display::handle_events(int) {
     XEvent ev;
     while (XPending(dsp.get())) {
@@ -204,17 +206,12 @@ void display::handle_events(int) {
 
             for (auto & m : monitors) {
                 if(XQueryPointer(dsp.get(), m.root, &root, &child, &root_x, &root_y,
-                                 &x, &y, &mask)) {
-                    // std::cout << "querypointer on " << m.root << std::endl;
-                    // std::cout << "mouse on root " << root << std::endl;
+                    &x, &y, &mask)) {
 
                     break;
                 }
             }
 
-            //  log.warn("X event for other screen?");
-            //  continue;
-            //
             log.debug("pointer: " + std::to_string(root_x) + "/" + std::to_string(root_y));
 
             if (mask & (Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask)) {
@@ -224,13 +221,13 @@ void display::handle_events(int) {
 
             auto const & m_last = get_mon_for_pos(last_pos);
             auto const & m_cur = get_mon_for_pos({root_x, root_y, root});
+            auto diff_x = std::abs(root_x - last_pos.x);
+            auto diff_y = std::abs(root_y - last_pos.y);
+            uint16_t pos = 0;
+            border_t border;
+
             // we need to check if we crossed a border since last pointer update
             if (root != last_pos.root) {
-                auto diff_x = std::abs(root_x - last_pos.x);
-                auto diff_y = std::abs(root_y - last_pos.y);
-
-                uint16_t pos = 0;
-                border_t border;
                 if (diff_x < diff_y) { // top/bottom
                     pos = RESOLUTION * (last_pos.x - m_last.x) / m_last.w;
                     if (root_y < m_cur.h / 2) { // top
@@ -247,21 +244,29 @@ void display::handle_events(int) {
                     }
                 }
 
+                log.debug("different root window, left at border: " + std::to_string(border));
 
-                // if (last_pos.x < last_pos.y && m_last.h - last_pos.y > last_pos.x) { // left
-                //     pos = RESOLUTION * (last_pos.y - m_last.y) / m_last.h;
-                //     border = border_t::LEFT;
-                // } else if (last_pos.y < last_pos.x && m_last.w - last_pos.x > last_pos.y) { // top
-                //     pos = RESOLUTION * (last_pos.x - m_last.x) / m_last.w;
-                //     border = border_t::TOP;
-                // } else if (last_pos.x > last_pos.y && m_last.h - last_pos.y < last_pos.x) { // right
-                //     pos = RESOLUTION * (last_pos.y - m_last.y) / m_last.h;
-                //     border = border_t::RIGHT;
-                // } else { // bottom
-                //     pos = RESOLUTION * (last_pos.x - m_last.x) / m_last.w;
-                //     border =  border_t::BOTTOM;
+                ctx.mouse_at_border({
+                    .screen = static_cast<uint8_t>(m_last.id),
+                    .border = border,
+                    .pos = pos
+                });
+            } else if (m_last != m_cur && (diff_x >= 1 || diff_y >= 1)) {
+                if (m_cur.x == m_last.x) {
+                    log.debug("mons are above each other: "
+                              + std::to_string(m_cur.y) + "+" + std::to_string(m_cur.h) + " | "
+                              + std::to_string(m_last.y) + "+" + std::to_string(m_last.h));
 
-                // }
+                    pos = RESOLUTION * (root_x - m_cur.x) / m_cur.w;
+                    border = m_cur.y + m_cur.h == m_last.y ? border_t::TOP : border_t::BOTTOM;
+                } else {
+                    log.debug("mons are next to each other: "
+                              + std::to_string(m_cur.x) + "+" + std::to_string(m_cur.w) + " | "
+                              + std::to_string(m_last.x) + "+" + std::to_string(m_last.w));
+
+                    border = m_cur.x + m_cur.w == m_last.x ? border_t::LEFT : border_t::RIGHT;
+                    pos = RESOLUTION * (root_y - m_cur.y) / m_cur.h;
+                }
                 log.debug("border: " + std::to_string(border));
 
                 ctx.mouse_at_border({
@@ -269,39 +274,9 @@ void display::handle_events(int) {
                     .border = border,
                     .pos = pos
                 });
-            // } else if (std::abs(root_x - last_pos.x) >= 1 || std::abs(root_y - last_pos.y) >= 1) {
-            //     auto const & m_cur = get_mon_for_pos({root_x, root_y, root});
-
-            //     if (m_last != m_cur) {
-            //         border_t border;
-            //         uint16_t pos = 0;
-            //         if (m_cur.x == m_last.x) {
-            //             log.debug("mons are above each other: "
-            //                       + std::to_string(m_cur.y) + "+" + std::to_string(m_cur.h) + " | "
-            //                       + std::to_string(m_last.y) + "+" + std::to_string(m_last.h));
-
-            //             pos = RESOLUTION * (root_x - m_cur.x) / m_cur.w;
-            //             border = m_cur.y + m_cur.h == m_last.y ? border_t::TOP : border_t::BOTTOM;
-            //         } else {
-            //             log.debug("mons are next to each other: "
-            //                       + std::to_string(m_cur.x) + "+" + std::to_string(m_cur.w) + " | "
-            //                       + std::to_string(m_last.x) + "+" + std::to_string(m_last.w));
-
-            //             border = m_cur.x + m_cur.w == m_last.x ? border_t::LEFT : border_t::RIGHT;
-            //             pos = RESOLUTION * (root_y - m_cur.y) / m_cur.h;
-            //         }
-            //         log.debug("border: " + std::to_string(border));
-
-            //         ctx.mouse_at_border({
-            //             .screen = static_cast<uint8_t>(m_last.id),
-            //             .border = border,
-            //             .pos = pos
-            //         });
-            //     }
             } else {
                 for (auto & b : border_rects) {
                     if (b.inside(root_x, root_y) && b.root == root) {
-                        uint16_t pos = 0;
                         switch (b.border) {
                             case border_t::TOP:
                             case border_t::BOTTOM:
@@ -334,10 +309,15 @@ void display::handle_events(int) {
 }
 
 display::monitor_t const & display::get_mon_for_pos(pos_t const & pos) const {
-    //std::cout << "get_mon_for_pos " << pos.x << " / " << pos.y << " root: " << pos.root << std::endl;
+//    std::cout << "get_mon_for_pos " << pos.x << " / " << pos.y << " root: " << pos.root << std::endl;
     for (auto const & m : monitors) {
-        //std::cout << "mon root " << m.root << " " << m.x << " / " << m.y << " " << m.w << "x" << m.h << std::endl;
-        if ((pos.root == m.root || pos.root == 0) && pos.x >= m.x && pos.x <= m.x + m.w && pos.y >= m.y && pos.y <= m.y + m.h) {
+//        std::cout << "mon root " << m.root << " " << m.x << " / " << m.y << " " << m.w << "x" << m.h << std::endl;
+        if ((pos.root == m.root || pos.root == 0)
+            && pos.x >= m.x
+            && pos.x <= m.x + m.w
+            && pos.y >= m.y
+            && pos.y <= m.y + m.h) {
+
             return m;
         }
     }
