@@ -109,6 +109,27 @@ sudo mv 100-wey-usbhid.rules /usr/lib/udev/rules.d/100-wey-usbhid.rules
 
 **_After logoff/login_** lmss should autostart with your user session.
 
+## Manual Screen Layout
+
+lmss uses XRandR to detect the screen/monitor layout. Depending on your
+configuration the order of the screens returned by XRandR may not correspond to
+the order of the screens the Wey device expects. To work around this it is
+possible to override the screen layout by providing a manual configuration and
+thereby disabling the auto detection though XRandR. If a screen layout
+configuration file is present at `/etc/lmss.sl` it will be used and automatic
+detection is disabled.
+
+The config file format consists of one screen configuration per line in the
+format: `widthxheight+xoffset+yoffset`
+
+A sample file of 4 FHD screens next to each other would look like this:
+
+```
+1920x1080+0+0
+1920x1080+1920+0
+1920x1080+3840+0
+1920x1080+5760+0
+```
 
 ## Autostart
 
