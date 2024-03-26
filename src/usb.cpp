@@ -176,7 +176,8 @@ void usb_dev::read_mouse_pos() {
 }
 
 void usb_dev::send_mouse_pos(mouse_pos_t const & mp) {
-    if (last_sent_pos.has_value() && (*last_sent_pos).screen == mp.screen && (*last_sent_pos).border == mp.border) {
+    if (last_sent_pos.has_value()) {
+        log.debug("skipping border since we're still waiting for the position cmd of the last border");
         return;
     }
 
