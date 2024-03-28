@@ -64,7 +64,7 @@ void display::read_screen_layout_from_file(std::string const & config_file) {
             auto h = std::stoi(screen_match[2]);
             auto x = std::stoi(screen_match[3]);
             auto y = std::stoi(screen_match[4]);
-            auto root = RootWindow(dsp.get(), mon);
+            auto root = XDefaultRootWindow(dsp.get());
 
             add_monitor(mon, x, y, w, h, root);
 
