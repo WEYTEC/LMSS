@@ -13,7 +13,7 @@
 static const char screen_config_file[] = "/etc/lmss.sl";
 
 static const int BORDER_WIDTH = 1;
-static const int BORDER_CLEARANCE = 8;
+static const int BORDER_CLEARANCE = 1;
 static const int RESOLUTION = 65536;
 
 display::display(logger & log, context & ctx)
