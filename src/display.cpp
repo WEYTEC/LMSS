@@ -39,6 +39,19 @@ display::display(logger & log, context & ctx)
         throw std::runtime_error("XInput 2.0 not supported");
     }
 
+    int fixes_opcode;
+
+    if (!XQueryExtension(dsp.get(), "XFIXES", &fixes_opcode, &event, &error)) {
+        throw std::runtime_error("XFIXES extension not supported");
+    }
+
+    major = 5;
+    minor = 0;
+    XFixesQueryVersion(dsp.get(), &major, &minor);
+    if (major < 5) {
+        throw std::runtime_error("XFIXES 5.0 not supported");
+    }
+
     if (std::filesystem::exists(screen_config_file)) {
         read_screen_layout_from_file(screen_config_file);
     } else {
@@ -48,6 +61,12 @@ display::display(logger & log, context & ctx)
     XSync(dsp.get(), False);
     xfd = file_descriptor(ConnectionNumber(dsp.get()));
     ctx.get_el().add_fd(*xfd, std::bind(&display::handle_events, this, std::placeholders::_1));
+}
+
+display::~display() {
+    for (auto b : barriers) {
+        XFixesDestroyPointerBarrier(dsp.get(), b);
+    }
 }
 
 void display::read_screen_layout_from_file(std::string const & config_file) {
@@ -132,6 +151,11 @@ void display::add_monitor(int mon, int x, int y, int w, int h, Window root) {
     border_rects.emplace_back(x, y, w, BORDER_WIDTH, mon, border_t::TOP, root);
     border_rects.emplace_back(x + w - BORDER_WIDTH, y, BORDER_WIDTH, h, mon, border_t::RIGHT, root);
     border_rects.emplace_back(x, y + h - BORDER_WIDTH, w, BORDER_WIDTH, mon, border_t::BOTTOM, root);
+
+    barriers.emplace_back(XFixesCreatePointerBarrier(dsp.get(), root, x, y, x, y + h, 0, 0, nullptr));
+    barriers.emplace_back(XFixesCreatePointerBarrier(dsp.get(), root, x + w, y, x + w, y + h, 0, 0, nullptr));
+    barriers.emplace_back(XFixesCreatePointerBarrier(dsp.get(), root, x, y, x + w, y, 0, 0, nullptr));
+    barriers.emplace_back(XFixesCreatePointerBarrier(dsp.get(), root, x, y + h, x + w, y + h, 0, 0, nullptr));
 
     monitors.emplace_back(monitor_t { .id = mon, .x = x, .y = y, .w = w, .h = h, .root = root });
     width = std::max(x + w, width);

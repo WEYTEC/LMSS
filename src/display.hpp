@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include <X11/extensions/XInput2.h>
+#include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/Xlib.h>
-#include <X11/extensions/XInput2.h>
 
 #include <memory>
 #include <string>
@@ -18,6 +19,7 @@
 class display final {
 public:
     display(logger &, context &);
+    ~display();
 
     void set_mouse_pos(mouse_pos_t const &);
     void handle_events(int);
@@ -64,6 +66,7 @@ private:
     int xi_opcode = 0;
     dsp_t dsp;
     std::vector<rect> border_rects;
+    std::vector<PointerBarrier> barriers;
     std::vector<monitor_t> monitors;
     bool hidden = false;
     int width = 0;
