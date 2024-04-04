@@ -18,7 +18,7 @@
 
 class display final {
 public:
-    display(logger &, context &);
+    display(logger &, bool dnd, context &);
     ~display();
 
     void set_mouse_pos(mouse_pos_t const &);
@@ -70,6 +70,7 @@ private:
     size_t last_mon = 0;
     file_descriptor xfd;
     logger & log;
+    bool enable_dnd;
     context & ctx;
     int xi_opcode = 0;
     dsp_t dsp;

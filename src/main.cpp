@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
         .default_value(false)
         .implicit_value(true)
         .help("print lmss version");
+    app.add_argument("-d", "--disable-dnd")
+        .default_value(true)
+        .implicit_value(false)
+        .help("disable drag'n'drop over internal borders");
 
     try {
         app.parse_args(argc, argv);
@@ -41,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     while (true) {
         try {
-            lmss l(log);
+            lmss l(log, app.get<bool>("-d"));
             l.run();
         } catch (std::runtime_error const & e) {
             log.err(e.what());

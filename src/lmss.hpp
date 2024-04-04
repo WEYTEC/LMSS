@@ -10,7 +10,7 @@
 
 class lmss final : public context {
 public:
-    lmss(logger &);
+    lmss(logger &, bool dnd);
 
     event_loop & get_el() override { return el; }
     void set_mouse_pos(mouse_pos_t const &) override;

@@ -16,8 +16,9 @@ static const int BORDER_WIDTH = 1;
 static const int BORDER_CLEARANCE = 1;
 static const int RESOLUTION = 65536;
 
-display::display(logger & log, context & ctx)
+display::display(logger & log, bool dnd, context & ctx)
     : log(log)
+    , enable_dnd(dnd)
     , ctx(ctx) {
 
     auto dsp_var = getenv("DISPLAY");
@@ -268,6 +269,27 @@ void display::handle_events(int) {
 
             int root_x = b->root_x;
             int root_y = b->root_y;
+
+            if (enable_dnd) {
+                Window root, child;
+                int rx, ry;
+                int x, y;
+                unsigned int mask;
+
+                for (auto & m : monitors) {
+                    if (XQueryPointer(dsp.get(), m.root, &root, &child, &rx, &ry, &x, &y, &mask)) {
+                        break;
+                    }
+                }
+
+                if (mask & (Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask)) {
+                    log.debug("mouse button pressed, disabling barrier for next move");
+                    XIBarrierReleasePointer(dsp.get(), b->deviceid, b->barrier, b->eventid);
+                    XFlush(dsp.get());
+                    XFreeEventData(dsp.get(), &ev.xcookie);
+                    continue;
+                }
+            }
 
             for (auto const & barrier : barriers) {
                 if (barrier.id == b->barrier) {

@@ -4,11 +4,11 @@
 
 #include <sys/timerfd.h>
 
-lmss::lmss(logger & log)
+lmss::lmss(logger & log, bool dnd)
     : log(log)
     , el(log)
     , usb(log, *this)
-    , dsp(log, *this)
+    , dsp(log, dnd, *this)
     , tfd(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)) {
 
     if (!tfd.valid()) {
