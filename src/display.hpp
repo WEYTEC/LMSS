@@ -53,20 +53,28 @@ private:
         Window root = 0;
     };
 
+    struct barrier_t {
+        PointerBarrier id = 0;
+        border_t border;
+        int mon = 0;
+    };
+
     monitor_t const & get_mon_for_pos(pos_t const &) const;
     void detect_screen_layout();
     void read_screen_layout_from_file(std::string const &);
     void add_monitor(int mon, int x, int y, int w, int h, Window);
     void subscribe_to_motion_events(Window);
+    void subscribe_to_barrier_events(Window);
 
     pos_t last_pos;
+    size_t last_mon = 0;
     file_descriptor xfd;
     logger & log;
     context & ctx;
     int xi_opcode = 0;
     dsp_t dsp;
     std::vector<rect> border_rects;
-    std::vector<PointerBarrier> barriers;
+    std::vector<barrier_t> barriers;
     std::vector<monitor_t> monitors;
     bool hidden = false;
     int width = 0;
