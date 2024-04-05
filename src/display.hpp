@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include <X11/extensions/XInput2.h>
+#include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/Xlib.h>
-#include <X11/extensions/XInput2.h>
 
 #include <memory>
 #include <string>
@@ -17,7 +18,8 @@
 
 class display final {
 public:
-    display(logger &, context &);
+    display(logger &, bool dnd, context &);
+    ~display();
 
     void set_mouse_pos(mouse_pos_t const &);
     void handle_events(int);
@@ -45,27 +47,25 @@ private:
         inline bool operator!=(monitor_t const & other) const { return !operator==(other); }
     };
 
-    struct pos_t {
-        int x = 0;
-        int y = 0;
-        Window root = 0;
+    struct barrier_t {
+        PointerBarrier id = 0;
+        border_t border;
+        int mon = 0;
     };
 
-    monitor_t const & get_mon_for_pos(pos_t const &) const;
     void detect_screen_layout();
     void read_screen_layout_from_file(std::string const &);
     void add_monitor(int mon, int x, int y, int w, int h, Window);
-    void subscribe_to_motion_events(Window);
+    void subscribe_to_barrier_events(Window);
 
-    pos_t last_pos;
+    size_t last_mon = 0;
     file_descriptor xfd;
     logger & log;
+    bool enable_dnd;
     context & ctx;
     int xi_opcode = 0;
     dsp_t dsp;
-    std::vector<rect> border_rects;
+    std::vector<barrier_t> barriers;
     std::vector<monitor_t> monitors;
     bool hidden = false;
-    int width = 0;
-    int height = 0;
 };

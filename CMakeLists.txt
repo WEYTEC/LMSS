@@ -17,6 +17,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(XRandR REQUIRED IMPORTED_TARGET xrandr)
 pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 pkg_check_modules(Xi REQUIRED IMPORTED_TARGET xi)
+pkg_check_modules(Xfixes REQUIRED IMPORTED_TARGET xfixes)
 
 set(XDG_AUTOSTART_DIR "/etc/xdg/autostart"
     CACHE PATH "Path to the freedesktop autostart directory")
@@ -42,7 +43,8 @@ target_link_libraries(lmss
     PUBLIC
     PkgConfig::XRandR
     PkgConfig::X11
-    PkgConfig::Xi)
+    PkgConfig::Xi
+    PkgConfig::Xfixes)
 
 target_compile_options(lmss PRIVATE -Wall -Wextra -std=c++20)
 
@@ -68,6 +70,7 @@ set(CPACK_GENERATOR "TGZ;DEB")
 
 # DEB
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libxi6 (>= 1.7.0)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libxfixes3 (>= 5.0.3)")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "WEY Technology AG")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
     "${CMAKE_CURRENT_SOURCE_DIR}/install/postinst;${CMAKE_CURRENT_SOURCE_DIR}/install/prerm;" )
@@ -83,6 +86,7 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
 set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/install/postinst")
 set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/install/prerm")
 set(CPACK_RPM_PACKAGE_REQUIRES "libXi >= 1.7.0")
+set(CPACK_RPM_PACKAGE_REQUIRES "libXfixes >= 5.0.3")
 
 set(CPACK_SOURCE_IGNORE_FILES
     /.git
