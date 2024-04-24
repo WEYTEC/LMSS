@@ -216,6 +216,7 @@ void display::handle_events(int) {
 
             if (mask & (Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask)) {
                 log.debug("mouse button pressed, skipping border detection");
+                last_pos = { root_x, root_y, root };
                 continue;
             }
 
