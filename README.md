@@ -27,6 +27,8 @@ It works with the following products of WEY Technology AG:
 
 - WEYTEC USB Deskswitch III (Part No: 22412S)
 
+⚠️ smarttouch firmware 8.7 (26.03.2024) or newer is required since LMSS 4.2.x
+
 ## Installing
 
 Installing lmss through the rpm or deb package will enable lmss autostart.
