@@ -7,8 +7,8 @@ set(CMAKE_PROJECT_DESCRIPTION
     "Mouse Switching Software for WEYTEC IP Remote and Deskswitch products for Linux and Unix OS")
 
 set(lmss_VERSION_MAJOR 4)
-set(lmss_VERSION_MINOR 2)
-set(lmss_VERSION_PATCH 3)
+set(lmss_VERSION_MINOR 3)
+set(lmss_VERSION_PATCH 0)
 
 include(GNUInstallDirs)
 
