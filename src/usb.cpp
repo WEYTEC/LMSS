@@ -73,9 +73,9 @@ usb_dev::usb_dev(logger & log, context & ctx)
 
     struct itimerspec ts = {};
     ts.it_interval.tv_sec = 0;
-    ts.it_interval.tv_nsec = 10 * 1000;
+    ts.it_interval.tv_nsec = 10 * 1000 * 1000;
     ts.it_value.tv_sec = 0;
-    ts.it_value.tv_nsec = 10 * 1000;
+    ts.it_value.tv_nsec = 10 * 1000 * 1000;
 
     if (timerfd_settime(*tfd, 0, &ts, NULL) < 0) {
         throw std::system_error(errno, std::system_category(), "failed to arm timer");
@@ -101,6 +101,12 @@ void usb_dev::submit_transfer(transfer_t & t) {
 }
 
 void usb_dev::handle_events(int) {
+    uint64_t count;
+    if (__builtin_expect(::read(*tfd, &count, sizeof(count)), sizeof(count)) < 0) {
+        if (errno != EAGAIN) {
+            throw std::system_error(errno, std::system_category(), "failed to read usb");
+        }
+    }
     while (reap()) { }
 
     if (transfers.empty()) {
