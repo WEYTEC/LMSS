@@ -12,6 +12,8 @@ set(lmss_VERSION_PATCH 0)
 
 include(GNUInstallDirs)
 
+option(STATIC "static link libgcc/libc++ " OFF)
+
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(XRandR REQUIRED IMPORTED_TARGET xrandr)
@@ -38,11 +40,25 @@ add_executable(lmss
     src/usb.cpp
 )
 
-target_link_libraries(lmss
-    PUBLIC
-    PkgConfig::XRandR
-    PkgConfig::X11
-    PkgConfig::Xi)
+if(STATIC)
+    message(STATUS "static build")
+    target_link_libraries(lmss
+        PUBLIC
+        -static-libgcc
+        -static-libstdc++
+        PkgConfig::XRandR
+        PkgConfig::X11
+        PkgConfig::Xi
+    )
+else()
+    message(STATUS "dynamic build")
+    target_link_libraries(lmss
+            PUBLIC
+            PkgConfig::XRandR
+            PkgConfig::X11
+            PkgConfig::Xi
+    )
+endif()
 
 target_compile_options(lmss PRIVATE -Wall -Wextra -std=c++20)
 
