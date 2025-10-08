@@ -7,6 +7,7 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+#include <string>
 
 #include "types.hpp"
 

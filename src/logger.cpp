@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstdint>
 #include <iostream>
+#include <string>
 
 static const char* levels[] = {
     "Emergency", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug"
