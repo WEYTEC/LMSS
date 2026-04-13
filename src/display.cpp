@@ -215,30 +215,34 @@ void display::handle_events(int) {
 
             log.debug("pointer: " + std::to_string(root_x) + "/" + std::to_string(root_y));
 
+            if (!last_pos.has_value()) {
+                last_pos = { root_x, root_y, root };
+            }
+
             if (mask & (Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask)) {
                 log.debug("mouse button pressed, skipping border detection");
                 last_pos = { root_x, root_y, root };
                 continue;
             }
 
-            auto const & m_last = get_mon_for_pos(last_pos);
+            auto const & m_last = get_mon_for_pos(*last_pos);
             auto const & m_cur = get_mon_for_pos({root_x, root_y, root});
-            auto diff_x = std::abs(root_x - last_pos.x);
-            auto diff_y = std::abs(root_y - last_pos.y);
+            auto diff_x = std::abs(root_x - last_pos->x);
+            auto diff_y = std::abs(root_y - last_pos->y);
             uint16_t pos = 0;
             border_t border;
 
             // we need to check if we crossed a border since last pointer update
-            if (root != last_pos.root) {
+            if (root != last_pos->root) {
                 if (diff_x < diff_y) { // top/bottom
-                    pos = RESOLUTION * (last_pos.x - m_last.x) / m_last.w;
+                    pos = RESOLUTION * (last_pos->x - m_last.x) / m_last.w;
                     if (root_y < m_cur.h / 2) { // top
                         border = border_t::TOP;
                     } else { //bottom
                         border =  border_t::BOTTOM;
                     }
                 } else { // left/right
-                    pos = RESOLUTION * (last_pos.y - m_last.y) / m_last.h;
+                    pos = RESOLUTION * (last_pos->y - m_last.y) / m_last.h;
                     if (root_x < m_cur.w / 2) { // right
                         border = border_t::RIGHT;
                     } else { // left

@@ -7,6 +7,7 @@
 #include <X11/extensions/XInput2.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -57,7 +58,7 @@ private:
     void add_monitor(int mon, int x, int y, int w, int h, Window);
     void subscribe_to_motion_events(Window);
 
-    pos_t last_pos;
+    std::optional<pos_t> last_pos;
     file_descriptor xfd;
     logger & log;
     context & ctx;
