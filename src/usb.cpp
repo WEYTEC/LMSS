@@ -15,6 +15,12 @@
 static const char USB_PATH[] = "/dev/bus/usb";
 static const unsigned int TRANSFER_TIMEOUT = 50;
 
+// If the device does not answer a border-cross with a position command within
+// this time (e.g. because the edge has no neighbour configured), drop the
+// waiting state so mouse switching does not get stuck. A valid cross is
+// acknowledged within a few tens of milliseconds, so this is a wide margin.
+static const std::chrono::milliseconds BORDER_RESPONSE_TIMEOUT{500};
+
 usb_dev::usb_dev(logger & log, context & ctx)
     : log(log)
     , ctx(ctx)
@@ -110,6 +116,12 @@ void usb_dev::handle_events(int) {
     }
     while (reap()) { }
 
+    if (last_sent_pos.has_value() &&
+        std::chrono::steady_clock::now() - last_sent_time > BORDER_RESPONSE_TIMEOUT) {
+        log.debug("no position cmd within timeout, resetting border wait state");
+        last_sent_pos.reset();
+    }
+
     if (transfers.empty()) {
         read_mouse_pos();
     }
@@ -189,6 +201,7 @@ void usb_dev::send_mouse_pos(mouse_pos_t const & mp) {
     }
 
     last_sent_pos = mp;
+    last_sent_time = std::chrono::steady_clock::now();
 
     std::array<uint8_t, 64> buf {};
     buf[0] = 0x05;

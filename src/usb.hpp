@@ -9,6 +9,7 @@
 #include <fcntl.h>
 
 #include <array>
+#include <chrono>
 #include <optional>
 #include <vector>
 
@@ -47,4 +48,5 @@ private:
     file_descriptor hid_fd;
     file_descriptor tfd;
     std::optional<mouse_pos_t> last_sent_pos;
+    std::chrono::steady_clock::time_point last_sent_time;
 };

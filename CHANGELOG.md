@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- reset the border wait state after a timeout when the device sends no position
+  command (e.g. an outer edge without a configured neighbour), so a single push
+  against a dead edge no longer blocks all further mouse switching
+
 ## [4.3.1] - 2026-06-02
 
 ### Fixed
