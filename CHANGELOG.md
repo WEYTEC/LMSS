@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.3.2] - 2026-07-08
+- don't reposition pointer when set to the screen we're already on
+
 ## [4.3.1] - 2026-06-02
 
 ### Fixed
