@@ -179,6 +179,7 @@ home `~/.config/autostart/`.
 ## Tested Distributions
 **running on**:
 * Ubuntu 20.04 LTS, 22.04 LTS, 24.04 LTS
+* Kubuntu (with plasma-session-x11), Xubuntu, Lubuntu, ... 26.04 LTS
 * CentOS 7, 8
 * AlmaLinux 8, 9
 * Rocky Linux 8, 9
@@ -190,6 +191,7 @@ distribution. Please provide feedback and feel free to provide PR with changes
 that are needed to make the software run on other distributions and versions.
 
 **not running on** (dropped support for X.org):
+* Gnome >=49
 * AlmaLinux 10
 * Rocky Linux 10
 * RHEL® 10
