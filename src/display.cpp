@@ -140,6 +140,11 @@ void display::add_monitor(int mon, int x, int y, int w, int h, Window root) {
 }
 
 void display::set_mouse_pos(mouse_pos_t const & mp) {
+    if (last_pos && get_mon_for_pos(*last_pos) == monitors[mp.screen]
+        && mp.border <= border_t::RIGHT && !hidden) {
+        return;
+    }
+
     std::stringstream ss;
     ss << "setting mouse pos on screen " << std::to_string(mp.screen)
        << " border: " << std::to_string(mp.border)
