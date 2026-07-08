@@ -24,10 +24,24 @@ It works with the following products of WEY Technology AG:
     * IP Remote II DP Transmitter (Part No. 24872TDP)
     * IP Remote III 4K Transmitter (Part No. 24873T)
     * IP Remote IV Transmitter (Part No. 24874T)
+    * smartCONNECTOR B2 (Part No. 22010B2)
+
+- WEYTEC IP Remote MX Transmitter family
+    * IP Remote II DP (MX) Transmitter (Part No. 24872TDP-MX)
+    * IP Remote III 4K (MX) Transmitter (Part No. 24873T-MX)
+    * IP Remote III AV (MX) Transmitter (Part No. 24883T-MX)
+    * IP Remote IV (MX) Transmitter (Part No. 24874T-MX)
+    * smartCONNECTOR III (MX) (Part No. 22011-MX)
 
 - WEYTEC USB Deskswitch III (Part No: 22412S)
 
+⚠️ USB Deskswitch Firmware 1.9 (08.07.2026) or newer is required since LMSS 4.2.x
+
+- WEYTEC smartTOUCH (22002/22003)
+
 ⚠️ smarttouch firmware 8.7 (26.03.2024) or newer is required since LMSS 4.2.x
+
+- WEYTEC smartTOUCH (MX) (22003BK-MX)
 
 ## Installing
 
@@ -164,11 +178,11 @@ home `~/.config/autostart/`.
 
 ## Tested Distributions
 
-* Ubuntu 20.04 LTS, 22.04 LTS
+* Ubuntu 20.04 LTS, 22.04 LTS, 24.04 LTS
 * CentOS 7, 8
-* AlmaLinux 8.9
-* Rocky Linux 8
-* RHEL® 7.9
+* AlmaLinux 8, 9
+* Rocky Linux 8, 9
+* RHEL® 7.9, 8, 9
 
 Other distributions should work too, as long as X.org is used as session window
 system. The installation of the software / autostart / rights might differ per
