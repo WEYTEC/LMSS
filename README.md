@@ -177,17 +177,23 @@ Just place a file called `lmss.desktop` containing `Hidden=true` in the users
 home `~/.config/autostart/`.
 
 ## Tested Distributions
-
+**running on**:
 * Ubuntu 20.04 LTS, 22.04 LTS, 24.04 LTS
 * CentOS 7, 8
 * AlmaLinux 8, 9
 * Rocky Linux 8, 9
 * RHEL® 7.9, 8, 9
 
-Other distributions should work too, as long as X.org is used as session window
-system. The installation of the software / autostart / rights might differ per
+Other distributions should work too, as long as **X.org is used as session window
+system**. The installation of the software / autostart / rights might differ per
 distribution. Please provide feedback and feel free to provide PR with changes
 that are needed to make the software run on other distributions and versions.
+
+**not running on** (dropped support for X.org):
+* AlmaLinux 10
+* Rocky Linux 10
+* RHEL® 10
+
 
 ## Building
 
